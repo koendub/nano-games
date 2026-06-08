@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import type { HalfAMinuteConfig } from "../hamModels";
 import { Button } from "@base-ui/react/button";
-import CountDownTimer from "../../shared/CountDownTimer";
-import { CardContent, CardHeader, CardTitle } from "../../../components/Card";
+import CountDownTimer from "../../../components/CountDownTimer";
+import { CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 
 
 interface HalfAMinuteTurn {

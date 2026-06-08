@@ -1,4 +1,4 @@
-import type { Team } from "../shared/CreateTeams";
+import type { Team } from "../../components/CreateTeams";
 
 
 export interface HalfAMinuteConfig {

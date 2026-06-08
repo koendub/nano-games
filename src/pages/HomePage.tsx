@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Card } from "../components/Card";
+import { Card } from "../components/ui/Card";
 import { halfAMinuteCatchPhrase } from "../games/half-a-minute/hamModels";
 import { notTheSameCatchPhrase } from "../games/not-the-same/ntsModels";
 import { aTrueStoryCatchPhrase } from "../games/a-true-story/atsModels";

@@ -1,7 +1,7 @@
-import { type Dispatch, type SetStateAction, useCallback, useEffect } from "react";
+import { type Dispatch, useCallback, useEffect } from "react";
 import { Trash2, UserPlus2 } from "lucide-react";
 import { Button } from "@base-ui/react/button";
-import { Card } from "../../components/Card";
+import { Card } from "./ui/Card";
 
 
 export interface Team {
@@ -25,14 +25,15 @@ const teamColors = [
 
 interface CreateTeamsProps {
   teams: Team[];
-  setTeams: Dispatch<SetStateAction<Team[]>>;
+  setTeams: Dispatch<Team[]>;
+  minTeams?: number;
   maxTeams?: number;
 }
 
 const createTeamName = (idx: number): string => "Team " + String.fromCharCode(97 + idx).toUpperCase();
 const createPlayerName = (idx: number): string => "Player " + idx;
 
-export default function CreateTeams({ teams, setTeams, maxTeams = 5 }: CreateTeamsProps) {
+export default function CreateTeams({ teams, setTeams, minTeams = 2, maxTeams = 5 }: CreateTeamsProps) {
   const getNextTeamColor = useCallback((teams: Team[]) => {
     const usedColors = new Set(teams.map(team => team.color));
     const firstUnusedColor = teamColors.find(color => !usedColors.has(color));
@@ -41,89 +42,76 @@ export default function CreateTeams({ teams, setTeams, maxTeams = 5 }: CreateTea
   }, []);
 
   const createNewTeam = useCallback(() => {
-    setTeams(prev => {
-      if (prev.length >= maxTeams) return prev;
-      let newTeamIndex = 0;
-      while (prev.some(team => team.name === createTeamName(newTeamIndex))) {
-        newTeamIndex += 1;
-      }
-      let newPlayerIndex = 1;
-      while (prev.some(team => team.playerNames.some(player => player === createPlayerName(newPlayerIndex)))) {
-        newPlayerIndex += 1;
-      }
-      return [...prev, {
-        name: createTeamName(newTeamIndex),
-        playerNames: [createPlayerName(newPlayerIndex)],
-        color: getNextTeamColor(prev),
-      } ]
-    });
-  }, [setTeams, maxTeams, getNextTeamColor]);
+    if (teams.length >= maxTeams) return;
+    let newTeamIndex = 0;
+    while (teams.some(team => team.name === createTeamName(newTeamIndex))) {
+      newTeamIndex += 1;
+    }
+    let newPlayerIndex = 1;
+    while (teams.some(team => team.playerNames.some(player => player === createPlayerName(newPlayerIndex)))) {
+      newPlayerIndex += 1;
+    }
+    setTeams([...teams, {
+      name: createTeamName(newTeamIndex),
+      playerNames: [createPlayerName(newPlayerIndex)],
+      color: getNextTeamColor(teams),
+    }]);
+  }, [teams, setTeams, maxTeams, getNextTeamColor]);
 
   const createNewPlayer = useCallback((teamIndex: number) => {
-    setTeams(prev => {
-      const newTeams = [...prev];
-      let newPlayerIndex = 1;
-      while (prev.some(team => team.playerNames.some(player => player === createPlayerName(newPlayerIndex)))) {
-        newPlayerIndex += 1;
-      }
-      const newPlayers = [...newTeams[teamIndex].playerNames, createPlayerName(newPlayerIndex)];
-      newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
-      return newTeams;
-    });
-  }, [setTeams]);
+    const newTeams = [...teams];
+    let newPlayerIndex = 1;
+    while (teams.some(team => team.playerNames.some(player => player === createPlayerName(newPlayerIndex)))) {
+      newPlayerIndex += 1;
+    }
+    const newPlayers = [...newTeams[teamIndex].playerNames, createPlayerName(newPlayerIndex)];
+    newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
+    setTeams(newTeams);
+  }, [teams, setTeams]);
 
   const removeTeam = useCallback((teamIndex: number) => {
-    setTeams(prev => {
-      const newTeams = [...prev];
-      newTeams.splice(teamIndex, 1);
-      return newTeams;
-    });
-  }, [setTeams]);
+    if (teams.length <= minTeams) return;
+    const newTeams = [...teams];
+    newTeams.splice(teamIndex, 1);
+    setTeams(newTeams);
+  }, [teams, setTeams, minTeams]);
 
   const removePlayer = useCallback((teamIndex: number, playerIndex: number) => {
-    setTeams(prev => {
-      const newTeams = [...prev];
-      const newPlayers = [...newTeams[teamIndex].playerNames];
-      if (newPlayers.length === 1) return prev;
-      newPlayers.splice(playerIndex, 1);
-      newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
-      return newTeams;
-    });
-  }, [setTeams]);
+    const newTeams = [...teams];
+    const newPlayers = [...newTeams[teamIndex].playerNames];
+    if (newPlayers.length === 1) return;
+    newPlayers.splice(playerIndex, 1);
+    newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
+    setTeams(newTeams);
+  }, [teams, setTeams]);
 
   const updateTeamName = useCallback((teamIndex: number, name: string) => {
-    setTeams(prev => {
-      if (prev.some(t => t.name === name)) return prev;
-      const newTeams = [...prev];
-      newTeams[teamIndex] = { ...newTeams[teamIndex], name };
-      return newTeams;
-    });
-  }, [setTeams]);
+    if (teams.some(t => t.name === name)) return;
+    const newTeams = [...teams];
+    newTeams[teamIndex] = { ...newTeams[teamIndex], name };
+    setTeams(newTeams);
+  }, [teams, setTeams]);
 
   const updatePlayerName = useCallback((teamIndex: number, playerIndex: number, name: string) => {
-    setTeams(prev => {
-      const newTeams = [...prev];
-      const newPlayers = [...newTeams[teamIndex].playerNames];
-      newPlayers[playerIndex] = name;
-      newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
-      return newTeams;
-    });
-  }, [setTeams]);
+    const newTeams = [...teams];
+    const newPlayers = [...newTeams[teamIndex].playerNames];
+    newPlayers[playerIndex] = name;
+    newTeams[teamIndex] = { ...newTeams[teamIndex], playerNames: newPlayers };
+    setTeams(newTeams);
+  }, [teams, setTeams]);
 
   const shufflePlayers = useCallback(() => {
-    setTeams(prev => {
-      const allPlayers = prev.flatMap(team => team.playerNames);
-      const shuffledPlayers = allPlayers.sort(() => Math.random() - 0.5);
-      const atLeastPlayersPerTeam = Math.floor(allPlayers.length / prev.length);
-      const playersLeft = allPlayers.length % prev.length;
-      return prev.map((team, idx) => {
-        const playersInThisTeam = atLeastPlayersPerTeam + (playersLeft > idx ? 1 : 0);
-        const players = shuffledPlayers.splice(0, playersInThisTeam);
-        const newTeam = { name: team.name, playerNames: players, color: team.color };
-        return newTeam;
-      });
-    });
-  }, [setTeams]);
+    const allPlayers = teams.flatMap(team => team.playerNames);
+    const shuffledPlayers = allPlayers.sort(() => Math.random() - 0.5);
+    const atLeastPlayersPerTeam = Math.floor(allPlayers.length / teams.length);
+    const playersLeft = allPlayers.length % teams.length;
+    setTeams(teams.map((team, idx) => {
+      const playersInThisTeam = atLeastPlayersPerTeam + (playersLeft > idx ? 1 : 0);
+      const players = shuffledPlayers.splice(0, playersInThisTeam);
+      const newTeam = { name: team.name, playerNames: players, color: team.color };
+      return newTeam;
+    }));
+  }, [teams, setTeams]);
 
   useEffect(() => {
     const missingColors = teams.filter(team => !team.color);
@@ -138,7 +126,6 @@ export default function CreateTeams({ teams, setTeams, maxTeams = 5 }: CreateTea
 
   return (
     <div className="flex flex-col py-2 w-full">
-
       <h1 className="px-2 pt-4">
         Create teams
       </h1>
@@ -153,10 +140,12 @@ export default function CreateTeams({ teams, setTeams, maxTeams = 5 }: CreateTea
                 onChange={(e) => updateTeamName(index, e.target.value)}
               />
               <div className="flex flex-row gap-2">
-                <Button className="button bg-red-300" onClick={() => removeTeam(index)}>
-                  <Trash2 />
-                </Button>
-                <Button className="button bg-green-300" onClick={() => createNewPlayer(index)}>
+                {teams.length > minTeams && (
+                  <Button className="button border-2 border-red-400" onClick={() => removeTeam(index)}>
+                    <Trash2 />
+                  </Button>
+                )}
+                <Button className="button border-2 border-green-400" onClick={() => createNewPlayer(index)}>
                   <UserPlus2 />
                 </Button>
               </div>
@@ -169,7 +158,7 @@ export default function CreateTeams({ teams, setTeams, maxTeams = 5 }: CreateTea
                     value={playerName}
                     onChange={(e) => updatePlayerName(index, playerIndex, e.target.value)}
                   />
-                  <Button className="button bg-red-300" onClick={() => removePlayer(index, playerIndex)} disabled={team.playerNames.length === 1}>
+                  <Button className="button border-2 border-red-400" onClick={() => removePlayer(index, playerIndex)} disabled={team.playerNames.length === 1}>
                     <Trash2 />
                   </Button>
                 </li>

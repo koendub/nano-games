@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Slider } from '@base-ui/react/slider'; 
 import type { HalfAMinuteConfig } from "../hamModels";
 import { useHamWordSets } from "../hamLogicHooks";
-import CreateTeams from "../../shared/CreateTeams";
+import CreateTeams from "../../../components/CreateTeams";
 import HalfAMinuteSets from "./HalfAMinuteSets";
 import { Button } from "@base-ui/react/button";
-import { Card } from "../../../components/Card";
+import { Card } from "../../../components/ui/Card";
 
 
 interface HalfAMinuteSetupProps {
@@ -70,7 +70,7 @@ export default function HalfAMinuteSetup({ initialConfig, startGame }: HalfAMinu
       <div className="flex flex-col gap-2">
         <CreateTeams
           teams={config.teams}
-          setTeams={(t) => setConfig(prev => ({ ...prev, teams: typeof t === 'function' ? t(prev.teams) : t }))}
+          setTeams={(t) => setConfig(prev => ({ ...prev, teams: t }))}
         />
       </div>
 

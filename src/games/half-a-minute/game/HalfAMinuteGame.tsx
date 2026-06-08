@@ -4,7 +4,7 @@ import type { HalfAMinuteConfig } from "../hamModels";
 import { useHamGameState } from "../hamLogicHooks";
 import { useMemo } from "react";
 import { Button } from "@base-ui/react/button";
-import { Card } from "../../../components/Card";
+import { Card } from "../../../components/ui/Card";
 
 interface HalfAMinuteGameProps {
     config: HalfAMinuteConfig;

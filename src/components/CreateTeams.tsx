@@ -140,11 +140,13 @@ export default function CreateTeams({ teams, setTeams, minTeams = 2, maxTeams = 
                 onChange={(e) => updateTeamName(index, e.target.value)}
               />
               <div className="flex flex-row gap-2">
-                {teams.length > minTeams && (
-                  <Button className="button border-2 border-red-400" onClick={() => removeTeam(index)}>
-                    <Trash2 />
-                  </Button>
-                )}
+                <Button
+                  className={"button border-2 border-red-400 " + (teams.length > minTeams ? "opacity-100" : "opacity-0")}
+                  onClick={() => removeTeam(index)}
+                  disabled={teams.length <= minTeams}
+                >
+                  <Trash2 />
+                </Button>
                 <Button className="button border-2 border-green-400" onClick={() => createNewPlayer(index)}>
                   <UserPlus2 />
                 </Button>

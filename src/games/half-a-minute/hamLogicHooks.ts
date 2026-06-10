@@ -1,15 +1,26 @@
 import { useCallback, useState } from "react";
 import type { HalfAMinuteConfig, HalfAMinuteState } from "./hamModels";
-import { localWordSets } from "../../assets/wordSets/wordSets";
+import { appWordSets, localDataToWordSet } from "../../assets/wordSets/wordSets";
 import { arrayRandomUniqueIterator } from "../shared/utils";
+import type { WordSet, WordSetData } from "../../assets/wordSets/wordSetModels";
 
 
-export function useHamWordSets() {
-  return localWordSets;
+export function getHamWordSets() {
+  let localStoredSets = Object.keys(localStorage)
+    .filter((key)=> key.startsWith("wordset-"))
+    .map((key)=> JSON.parse(localStorage[key]) as WordSetData)
+    .map(localDataToWordSet);
+  return [...appWordSets, ...localStoredSets];
+}
+
+export function storeNewWordSet(newSet: WordSetData): WordSet {
+  const asSet = localDataToWordSet(newSet);
+  localStorage.setItem(`wordset-${asSet.id}`, JSON.stringify(newSet));
+  return asSet;
 }
 
 function getHamWords(config: HalfAMinuteConfig) {
-  const usingSets = useHamWordSets().filter((set) => config.wordSets.includes(set.id));
+  const usingSets = getHamWordSets().filter((set) => config.wordSets.includes(set.id));
   const set = usingSets[0]
   return arrayRandomUniqueIterator(set.id, set.words, 5);
 }

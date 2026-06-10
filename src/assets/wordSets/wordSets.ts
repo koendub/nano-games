@@ -3,7 +3,7 @@ import { wordsetCompSci } from "./english/data_wordset_comp_sci";
 import { wordsetEconomics } from "./english/data_wordset_economics";
 import { wordsetMedicine } from "./english/data_wordset_medicine";
 import { wordsetNouns } from "./english/data_wordset_nouns";
-import type { WordSet } from "./wordSetModels";
+import type { WordSet, WordSetData } from "./wordSetModels";
 
 const localWordSetData = [
   wordset1990sKids,
@@ -13,9 +13,11 @@ const localWordSetData = [
   wordsetNouns
 ]
 
-export const localWordSets = localWordSetData.map(wsd => ({
-  id: wsd.name,
+export const localDataToWordSet = (data: WordSetData): WordSet => ({
+  id: data.name.replace(/\s+/g, '-').toLowerCase(),
   downloaded: true,
   editable: false,
-  ...wsd,
-} as WordSet))
+  ...data,
+})
+
+export const appWordSets = localWordSetData.map(localDataToWordSet);

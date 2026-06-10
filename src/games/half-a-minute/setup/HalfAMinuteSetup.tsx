@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import { Slider } from '@base-ui/react/slider'; 
 import type { HalfAMinuteConfig } from "../hamModels";
-import { useHamWordSets } from "../hamLogicHooks";
 import CreateTeams from "../../../components/CreateTeams";
 import HalfAMinuteSets from "./HalfAMinuteSets";
 import { Button } from "@base-ui/react/button";
@@ -17,7 +16,6 @@ interface HalfAMinuteSetupProps {
 
 export default function HalfAMinuteSetup({ initialConfig, startGame }: HalfAMinuteSetupProps) {
   const [config, setConfig] = useState(initialConfig);
-  const availableWordSets = useHamWordSets();
   
   return (
     <div className="flex flex-col gap-4 pb-8 p-1">
@@ -78,9 +76,8 @@ export default function HalfAMinuteSetup({ initialConfig, startGame }: HalfAMinu
         Word sets
       </h1>
       <HalfAMinuteSets
-        wordSets={config.wordSets}
-        setWordSets={(w) => setConfig(prev => ({ ...prev, wordSets: w }))}
-        availableWordSets={availableWordSets}
+        selectedWordSets={config.wordSets}
+        setSelectedWordSets={(w) => setConfig(prev => ({ ...prev, wordSets: w }))}
       />
 
       <div className="w-full flex items-center justify-center mt-6">

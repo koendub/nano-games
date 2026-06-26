@@ -15,6 +15,7 @@ export function getHamWordSets() {
 
 export function storeNewWordSet(newSet: WordSetData): WordSet {
   const asSet = localDataToWordSet(newSet);
+  asSet.editable = true;
   localStorage.setItem(`wordset-${asSet.id}`, JSON.stringify(newSet));
   return asSet;
 }

@@ -41,7 +41,9 @@ export function arrayRandomUniqueIterator<T>(name: string, array: T[], amount: n
   const iterTracker = storedTracker ? JSON.parse(storedTracker) : {
     name: name, fullLoops: 0, currentIdx: 0
   };
+  console.log('Getting from index', iterTracker.currentIdx);
   const { newTracker, slice } = _arrayRandomUniqueIteratorFromTracker(iterTracker, array, amount);
+  console.log('New tracker index', newTracker.currentIdx);
   localStorage.setItem(storageKey, JSON.stringify(newTracker));
   return slice;
 }

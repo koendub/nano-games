@@ -20,7 +20,7 @@ const setCategoryIcons: Record<string, typeof Drama> = {
 
 export default function HalfAMinuteSets({ selectedWordSets: wordSets, setSelectedWordSets: setWordSets }: HalfAMinuteSetsProps) {
   const [availableWordSets, setAvailableWordSets] = useState(getHamWordSets());
-  const [editingSet, setEditingSet] = useState<WordSetData | undefined>(undefined);
+  const [editingSet, setEditingSet] = useState<WordSet | WordSetData | undefined>(undefined);
 
   const toggleWordSet = useCallback((setId: string) => {
     const newSets = wordSets.includes(setId) ? wordSets.filter(id => id !== setId) : [...wordSets, setId];
@@ -49,13 +49,7 @@ export default function HalfAMinuteSets({ selectedWordSets: wordSets, setSelecte
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setEditingSet({
-                  name: set.name,
-                  description: set.description,
-                  category: set.category,
-                  language: set.language,
-                  words: set.words
-                });
+                setEditingSet({...set});
               }}>
               <PencilLineIcon size={16} className="ml-auto" />
             </button>
@@ -70,8 +64,8 @@ export default function HalfAMinuteSets({ selectedWordSets: wordSets, setSelecte
 }
 
 interface CreateNewSetFormProps {
-  editingSet: WordSetData | undefined;
-  setEditingSet: Dispatch<WordSetData | undefined>;
+  editingSet: WordSet | WordSetData | undefined;
+  setEditingSet: Dispatch<WordSet | WordSetData | undefined>;
   onSetSave: (newSet: WordSet) => void;
 }
 
@@ -184,7 +178,7 @@ function CreateNewSetForm({ editingSet, setEditingSet, onSetSave }: CreateNewSet
             onClick={() => {
               const splitWords = Array.isArray(editingSet.words)
                 ? editingSet.words
-                : (editingSet.words as unknown as string).split(",").map(w => w.trim()).filter(w => w.length > 0)
+                : (editingSet.words as unknown as string).split(",").map(w => w.trim()).filter(w => w.length > 0);
               const newSet = storeNewWordSet({ ...editingSet, words: splitWords });
               onSetSave(newSet);
               setEditingSet(undefined);

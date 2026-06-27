@@ -14,10 +14,10 @@ const localWordSetData = [
 ]
 
 export const localDataToWordSet = (data: WordSetData): WordSet => ({
+  ...data,
   id: data.name.replace(/\s+/g, '-').toLowerCase(),
   downloaded: true,
   editable: false,
-  ...data,
-})
+});
 
 export const appWordSets = localWordSetData.map(localDataToWordSet);

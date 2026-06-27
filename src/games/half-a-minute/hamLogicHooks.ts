@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { HalfAMinuteConfig, HalfAMinuteState } from "./hamModels";
 import { appWordSets, localDataToWordSet } from "../../assets/wordSets/wordSets";
 import { arrayRandomUniqueIterator } from "../shared/utils";
@@ -8,19 +8,19 @@ import type { WordSet, WordSetData } from "../../assets/wordSets/wordSetModels";
 export function getHamWordSets() {
   let localStoredSets = Object.keys(localStorage)
     .filter((key)=> key.startsWith("wordset-"))
-    .map((key)=> JSON.parse(localStorage[key]) as WordSetData)
-    .map(localDataToWordSet);
+    .map((key)=> JSON.parse(localStorage[key]) as WordSet)
   return [...appWordSets, ...localStoredSets];
 }
 
 export function storeNewWordSet(newSet: WordSetData): WordSet {
   const asSet = localDataToWordSet(newSet);
   asSet.editable = true;
-  localStorage.setItem(`wordset-${asSet.id}`, JSON.stringify(newSet));
+  localStorage.setItem(`wordset-${asSet.id}`, JSON.stringify(asSet));
   return asSet;
 }
 
 function getHamWords(config: HalfAMinuteConfig) {
+  console.log("Getting ham words")
   const usingSets = getHamWordSets().filter((set) => config.wordSets.includes(set.id));
   const set = usingSets[0]
   return arrayRandomUniqueIterator(set.id, set.words, 5);
@@ -41,13 +41,14 @@ export function getHamDefaultConfig() {
 
 export function useHamGameState(config: HalfAMinuteConfig) {
   // Create initial game state
+  const firstWords = useMemo(() => getHamWords(config), []);
   const [gameState, setGameState] = useState<HalfAMinuteState>({
     config,
     pastTurns: [],
     currentTurn: {
       team: Math.floor(Math.random() * config.teams.length),
       player: 0,
-      words: Object.fromEntries(getHamWords(config).map(w => [w, false]))
+      words: Object.fromEntries(firstWords.map(w => [w, false]))
     },
     turnPhase: "give phone"
   })
